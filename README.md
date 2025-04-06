@@ -6,7 +6,7 @@ A web-based Library Management System designed to simplify and digitize the proc
 
 ## 🛠️ Tech Stack
 
-**Technologies Used:** "HTML, CSS, JavaScript, PHP, MySQL"
+**Technologies Used:** "HTML, CSS, JavaScript, MySQL"
 
 ---
 
