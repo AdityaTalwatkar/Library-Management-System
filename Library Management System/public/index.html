@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library Books</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Book ID</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Year Published</th>
+                <th>Available Copies</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="book-table-body">
+            <!-- Book data will be inserted here -->
+        </tbody>
+    </table>
+
+    <h2>Borrow a Book</h2>
+    <form id="borrow-form">
+        <input type="number" id="borrow-book-id" placeholder="Book ID" required>
+        <button type="submit">Borrow</button>
+    </form>
+
+    <h2>Submit a Review</h2>
+    <form id="review-form">
+        <input type="number" id="review-book-id" placeholder="Book ID" required>
+        <input type="text" id="review-text" placeholder="Your Review" required>
+        <button type="submit">Submit Review</button>
+    </form>
+
+    <script>
+        // Fetching and displaying books
+        fetch('/books')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('book-table-body');
+                data.forEach(book => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${book.book_id}</td>
+                        <td>${book.title}</td>
+                        <td>${book.author}</td>
+                        <td>${book.genre}</td>
+                        <td>${book.year_published}</td>
+                        <td>${book.available_copies}</td>
+                        <td><button onclick="borrowBook(${book.book_id})">Borrow</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching books:', error));
+
+        // Borrow book function
+        function borrowBook(bookId) {
+            fetch('/borrow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ book_id: bookId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                location.reload(); // Reload to update available copies
+            })
+            .catch(error => console.error('Error borrowing book:', error));
+        }
+
+        // Borrow form submission
+        document.getElementById('borrow-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const bookId = document.getElementById('borrow-book-id').value;
+            borrowBook(bookId);
+        });
+
+        // Review form submission
+        document.getElementById('review-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const bookId = document.getElementById('review-book-id').value;
+            const reviewText = document.getElementById('review-text').value;
+
+            fetch('/review', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ book_id: bookId, review: reviewText }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                document.getElementById('review-form').reset(); // Clear the form
+            })
+            .catch(error => console.error('Error submitting review:', error));
+        });
+    </script>
+</body>
+</html>
